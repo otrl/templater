@@ -1,0 +1,34 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+if ( $#ARGV != 1 ) { die("Usage $0: source_template destination_file"); }
+
+my $template = $ARGV[0];
+my $destination = $ARGV[1];
+
+open(INFILE,"<$template") or die("Error: template file $template doesn't exist");
+open(OUTFILE,">$destination") or die("Error: unable to create $destination for writing");
+
+my $regex='\{\{\s*(env|file)\s*(.*?)\s*\}\}';
+
+while (my $this_line = <INFILE>) {
+
+   while ($this_line =~ /$regex/g) {
+    my $this_env;
+    if ($1 eq 'env') {
+     if ($ENV{$2}) { $this_env=$ENV{$2} } else { die "Error: environmental variable $2 isn't set"; }
+     $this_line =~ s/\Q$&\E/$this_env/;
+    }
+
+    if ($1 eq 'file') {
+     open (THIS_FILE,"<$2") or die("Can't open file $2: $!");
+     my $file_contents = do { local $/; <THIS_FILE> };
+     close THIS_FILE;
+     $this_line =~ s/\Q$&\E/$file_contents/;
+    }
+  }
+  print OUTFILE $this_line;
+
+}
