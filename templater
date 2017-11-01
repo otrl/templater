@@ -14,21 +14,19 @@ open(OUTFILE,">$destination") or die("Error: unable to create $destination for w
 my $regex='\{\{\s*(env|file)\s*(.*?)\s*\}\}';
 
 while (my $this_line = <INFILE>) {
-
    while ($this_line =~ /$regex/g) {
-    my $this_env;
     if ($1 eq 'env') {
-     if ($ENV{$2}) { $this_env=$ENV{$2} } else { die "Error: environmental variable $2 isn't set"; }
-     $this_line =~ s/\Q$&\E/$this_env/;
+     if ( ! defined $ENV{$2} ) { die("Error: environmental variable $2 isn't set"); }
+     my $this_value = $ENV{$2};
+     $this_line =~ s/\Q$&\E/$this_value/;
     }
-
     if ($1 eq 'file') {
      open (THIS_FILE,"<$2") or die("Can't open file $2: $!");
      my $file_contents = do { local $/; <THIS_FILE> };
      close THIS_FILE;
+     chomp($file_contents);
      $this_line =~ s/\Q$&\E/$file_contents/;
     }
   }
   print OUTFILE $this_line;
-
 }

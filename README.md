@@ -37,7 +37,7 @@ Note:
 
 The use of this is entirely at your own risk.  This is a very basic, simple templating engine; there's very little in the way of sanity checking for your inputs (deliberately so).  The expected use is using Docker secrets to store small strings (database passwords etc.) which are then inserted into a config file.   
 
-Your container will need `Perl` installed.  This is normall available in everything but the most minimal of container images.
+Your container will need `Perl` installed.  This is normally available in everything but the most minimal of container images.
 
 
 Dockerfile example
