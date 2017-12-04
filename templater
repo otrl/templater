@@ -19,7 +19,7 @@ while (my $this_line = <INFILE>) {
     if ($1 eq 'env') {
      if ( ! defined $ENV{$2} ) { $missing .= "env variable $2\n"; }
      my $this_value = $ENV{$2};
-     chomp($this_vaule);
+     chomp($this_value);
      $this_line =~ s/\Q$&\E/$this_value/;
     }
     if ($1 eq 'file') {
