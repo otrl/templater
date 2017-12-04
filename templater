@@ -7,6 +7,7 @@ if ( $#ARGV != 1 ) { die("Usage $0: source_template destination_file"); }
 
 my $template = $ARGV[0];
 my $destination = $ARGV[1];
+my $missing;
 
 open(INFILE,"<$template") or die("Error: template file $template doesn't exist");
 open(OUTFILE,">$destination") or die("Error: unable to create $destination for writing");
@@ -16,12 +17,12 @@ my $regex='\{\{\s*(env|file)\s*(.*?)\s*\}\}';
 while (my $this_line = <INFILE>) {
    while ($this_line =~ /$regex/g) {
     if ($1 eq 'env') {
-     if ( ! defined $ENV{$2} ) { die("Error: environmental variable $2 isn't set"); }
+     if ( ! defined $ENV{$2} ) { $missing .= "env variable $2\n"; }
      my $this_value = $ENV{$2};
      $this_line =~ s/\Q$&\E/$this_value/;
     }
     if ($1 eq 'file') {
-     open (THIS_FILE,"<$2") or die("Can't open file $2: $!");
+     open (THIS_FILE,"<$2") or $missing .= "file $2\n";
      my $file_contents = do { local $/; <THIS_FILE> };
      close THIS_FILE;
      chomp($file_contents);
@@ -30,3 +31,4 @@ while (my $this_line = <INFILE>) {
   }
   print OUTFILE $this_line;
 }
+if ( $missing ) { die("FAILED: Missing values:\n$missing"); }
